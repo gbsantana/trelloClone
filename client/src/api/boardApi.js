@@ -1,7 +1,16 @@
 import axiosClient from './axiosClient'
 
 const boardApi = {
-  create: () => axiosClient.post('boards'),
+  create: async () => {
+    try {
+      const response = await axiosClient.post('boards');
+      console.log('API Response:', response);
+      return response;
+    } catch (err) {
+      console.error('API Error:', err);
+      throw err;
+    }
+  },
   getAll: () => axiosClient.get('boards'),
   updatePositoin: (params) => axiosClient.put('boards', params),
   getOne: (id) => axiosClient.get(`boards/${id}`),

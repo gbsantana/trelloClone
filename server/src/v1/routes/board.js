@@ -48,15 +48,17 @@ router.get(
 
 router.put(
   '/:boardId',
-  param('boardId').custom(value => {
+  param('boardId').custom((value) => {
     if (!validation.isObjectId(value)) {
-      return Promise.reject('invalid id')
-    } else return Promise.resolve()
+      console.error(`Invalid ObjectId: ${value}`); // Log invalid IDs
+      return Promise.reject('Invalid board ID');
+    }
+    return Promise.resolve();
   }),
   validation.validate,
   tokenHandler.verifyToken,
   boardController.update
-)
+);
 
 router.delete(
   '/:boardId',

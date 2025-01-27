@@ -1,12 +1,30 @@
-import axiosClient from './axiosClient'
+import axiosClient from './axiosClient';
 
 const sectionApi = {
-  create: (boardId) => axiosClient.post(`boards/${boardId}/sections`),
-  update: (boardId, sectionId, params) => axiosClient.put(
-    `boards/${boardId}/sections/${sectionId}`,
-    params
-  ),
-  delete: (boardId, sectionId) => axiosClient.delete(`boards/${boardId}/sections/${sectionId}`)
-}
+  create: async (boardId) => {
+    try {
+      return await axiosClient.post(`boards/${boardId}/sections`);
+    } catch (err) {
+      console.error('Error creating section:', err.response || err.message);
+      throw err;
+    }
+  },
+  update: async (boardId, sectionId, params) => {
+    try {
+      return await axiosClient.put(`boards/${boardId}/sections/${sectionId}`, params);
+    } catch (err) {
+      console.error('Error updating section:', err.response || err.message);
+      throw err;
+    }
+  },
+  delete: async (boardId, sectionId) => {
+    try {
+      return await axiosClient.delete(`boards/${boardId}/sections/${sectionId}`);
+    } catch (err) {
+      console.error('Error deleting section:', err.response || err.message);
+      throw err;
+    }
+  },
+};
 
-export default sectionApi
+export default sectionApi;

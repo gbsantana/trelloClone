@@ -4,16 +4,23 @@ const Task = require('../models/task')
 
 exports.create = async (req, res) => {
   try {
-    const boardsCount = await Board.find().count()
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({ message: 'Unauthorized: User not authenticated' });
+    }
+
+    const boardsCount = await Board.countDocuments();
     const board = await Board.create({
       user: req.user._id,
-      position: boardsCount > 0 ? boardsCount : 0
-    })
-    res.status(201).json(board)
+      position: boardsCount > 0 ? boardsCount : 0,
+    });
+
+    res.status(201).json(board);
   } catch (err) {
-    res.status(500).json(err)
+    console.error('Error Creating Board:', err);
+    res.status(500).json({ message: 'Failed to create board', error: err.message });
   }
-}
+};
+
 
 exports.getAll = async (req, res) => {
   try {
@@ -25,20 +32,19 @@ exports.getAll = async (req, res) => {
 }
 
 exports.updatePosition = async (req, res) => {
-  const { boards } = req.body
+  const { boards } = req.body;
   try {
-    for (const key in boards.reverse()) {
-      const board = boards[key]
-      await Board.findByIdAndUpdate(
-        board.id,
-        { $set: { position: key } }
+    await Promise.all(
+      boards.reverse().map((board, index) =>
+        Board.findByIdAndUpdate(board.id, { $set: { position: index } })
       )
-    }
-    res.status(200).json('updated')
+    );
+    res.status(200).json('updated');
   } catch (err) {
-    res.status(500).json(err)
+    console.error('Error updating positions:', err);
+    res.status(500).json({ message: 'Failed to update positions', error: err.message });
   }
-}
+};
 
 exports.getOne = async (req, res) => {
   const { boardId } = req.params

@@ -2,20 +2,24 @@ const Task = require('../models/task')
 const Section = require('../models/section')
 
 exports.create = async (req, res) => {
-  const { sectionId } = req.body
+  const { sectionId } = req.body;
   try {
-    const section = await Section.findById(sectionId)
-    const tasksCount = await Task.find({ section: sectionId }).count()
+    const section = await Section.findById(sectionId);
+    if (!section) {
+      return res.status(404).json({ message: 'Section not found' });
+    }
+
+    const tasksCount = await Task.countDocuments({ section: sectionId });
     const task = await Task.create({
       section: sectionId,
-      position: tasksCount > 0 ? tasksCount : 0
-    })
-    task._doc.section = section
-    res.status(201).json(task)
+      position: tasksCount,
+    });
+    res.status(201).json(task);
   } catch (err) {
-    res.status(500).json(err)
+    console.error('Error creating task:', err); // Log the error details
+    res.status(500).json({ message: 'Failed to create task', error: err.message });
   }
-}
+};
 
 exports.update = async (req, res) => {
   const { taskId } = req.params
@@ -31,59 +35,53 @@ exports.update = async (req, res) => {
 }
 
 exports.delete = async (req, res) => {
-  const { taskId } = req.params
+  const { taskId } = req.params;
   try {
-    const currentTask = await Task.findById(taskId)
-    await Task.deleteOne({ _id: taskId })
-    const tasks = await Task.find({ section: currentTask.section }).sort('postition')
-    for (const key in tasks) {
-      await Task.findByIdAndUpdate(
-        tasks[key].id,
-        { $set: { position: key } }
-      )
+    const currentTask = await Task.findById(taskId);
+    if (!currentTask) {
+      return res.status(404).json({ message: 'Task not found' });
     }
-    res.status(200).json('deleted')
+
+    await Task.deleteOne({ _id: taskId });
+
+    const tasks = await Task.find({ section: currentTask.section }).sort('position');
+    await Promise.all(
+      tasks.map((task, index) =>
+        Task.findByIdAndUpdate(task._id, { $set: { position: index } })
+      )
+    );
+
+    res.status(200).json({ message: 'Task deleted successfully' });
   } catch (err) {
-    res.status(500).json(err)
+    console.error('Error deleting task:', err);
+    res.status(500).json({ message: 'Failed to delete task', error: err.message });
   }
-}
+};
 
 exports.updatePosition = async (req, res) => {
   const {
     resourceList,
     destinationList,
     resourceSectionId,
-    destinationSectionId
-  } = req.body
-  const resourceListReverse = resourceList.reverse()
-  const destinationListReverse = destinationList.reverse()
+    destinationSectionId,
+  } = req.body;
+  const resourceListReverse = resourceList.reverse();
+  const destinationListReverse = destinationList.reverse();
   try {
     if (resourceSectionId !== destinationSectionId) {
       for (const key in resourceListReverse) {
-        await Task.findByIdAndUpdate(
-          resourceListReverse[key].id,
-          {
-            $set: {
-              section: resourceSectionId,
-              position: key
-            }
-          }
-        )
+        await Task.findByIdAndUpdate(resourceListReverse[key].id, {
+          $set: { section: resourceSectionId, position: key },
+        });
       }
     }
     for (const key in destinationListReverse) {
-      await Task.findByIdAndUpdate(
-        destinationListReverse[key].id,
-        {
-          $set: {
-            section: destinationSectionId,
-            position: key
-          }
-        }
-      )
+      await Task.findByIdAndUpdate(destinationListReverse[key].id, {
+        $set: { section: destinationSectionId, position: key },
+      });
     }
-    res.status(200).json('updated')
+    res.status(200).json('updated');
   } catch (err) {
-    res.status(500).json(err)
+    res.status(500).json(err);
   }
-}
+};
