@@ -4,10 +4,10 @@ const boardApi = {
   create: async () => {
     try {
       const response = await axiosClient.post('boards');
-      console.log('API Response:', response);
+      console.log('API Response:', response); // Log API response
       return response;
     } catch (err) {
-      console.error('API Error:', err);
+      console.error('API Error:', err); // Log error details
       throw err;
     }
   },

@@ -2,35 +2,43 @@ const Task = require('../models/task')
 const Section = require('../models/section')
 
 exports.create = async (req, res) => {
-  const { sectionId } = req.body;
-  try {
-    const section = await Section.findById(sectionId);
-    if (!section) {
-      return res.status(404).json({ message: 'Section not found' });
-    }
+  const { sectionId, title, content } = req.body;
 
-    const tasksCount = await Task.countDocuments({ section: sectionId });
+  if (!sectionId || !title || !content) {
+    return res.status(400).json({ message: 'Section ID, title, and content are required' });
+  }
+
+  try {
+    // Fix the count logic
+    const tasksCount = await Task.find({ section: sectionId }).countDocuments();
+
+    // Create the task
     const task = await Task.create({
       section: sectionId,
-      position: tasksCount,
+      title: title || 'Untitled',
+      content: content || 'Default content',
+      position: tasksCount, // Assign position based on count
     });
+
     res.status(201).json(task);
   } catch (err) {
-    console.error('Error creating task:', err); // Log the error details
+    console.error('Error creating task:', err);
     res.status(500).json({ message: 'Failed to create task', error: err.message });
   }
 };
 
 exports.update = async (req, res) => {
-  const { taskId } = req.params
+  const { taskId } = req.params;
   try {
     const task = await Task.findByIdAndUpdate(
       taskId,
-      { $set: req.body }
-    )
-    res.status(200).json(task)
+      { $set: req.body, updatedAt: Date.now() },
+      { new: true }
+    );
+    res.status(200).json(task);
   } catch (err) {
-    res.status(500).json(err)
+    console.error('Error updating task:', err);
+    res.status(500).json({ message: 'Failed to update task', error: err.message });
   }
 }
 
@@ -82,6 +90,7 @@ exports.updatePosition = async (req, res) => {
     }
     res.status(200).json('updated');
   } catch (err) {
-    res.status(500).json(err);
+    console.error('Error updating task positions:', err);
+    res.status(500).json({ message: 'Failed to update task positions', error: err.message });
   }
 };

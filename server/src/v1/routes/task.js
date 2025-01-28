@@ -16,6 +16,8 @@ router.post(
       return Promise.reject('invalid section id')
     } else return Promise.resolve()
   }),
+  body('title').notEmpty().withMessage('Title is required'),
+  body('content').notEmpty().withMessage('Content is required'),
   validation.validate,
   tokenHandler.verifyToken,
   taskController.create
@@ -62,6 +64,8 @@ router.put(
       return Promise.reject('invalid task id')
     } else return Promise.resolve()
   }),
+  body('title').optional().notEmpty().withMessage('Title cannot be empty'),
+  body('content').optional().notEmpty().withMessage('Content cannot be empty'),
   validation.validate,
   tokenHandler.verifyToken,
   taskController.update

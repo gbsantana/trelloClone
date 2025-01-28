@@ -64,6 +64,7 @@ router.delete(
   '/:boardId',
   param('boardId').custom(value => {
     if (!validation.isObjectId(value)) {
+      console.error(`Invalid ObjectId: ${value}`); // Log invalid IDs
       return Promise.reject('invalid id')
     } else return Promise.resolve()
   }),
@@ -71,6 +72,5 @@ router.delete(
   tokenHandler.verifyToken,
   boardController.delete
 )
-
 
 module.exports = router

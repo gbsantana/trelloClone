@@ -1,7 +1,10 @@
 import axiosClient from './axiosClient'
 
 const taskApi = {
-  create: (boardId, params) => axiosClient.post(`boards/${boardId}/tasks`, params),
+  create: (boardId, params) => {
+    console.log('Creating task with params:', params); // Log the request payload
+    return axiosClient.post(`boards/${boardId}/tasks`, params);
+  },
   updatePosition: (boardId, params) => axiosClient.put(
     `boards/${boardId}/tasks/update-position`,
     params

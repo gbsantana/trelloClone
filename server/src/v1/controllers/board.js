@@ -16,11 +16,10 @@ exports.create = async (req, res) => {
 
     res.status(201).json(board);
   } catch (err) {
-    console.error('Error Creating Board:', err);
+    console.error('Error Creating Board:', err); // Log error details
     res.status(500).json({ message: 'Failed to create board', error: err.message });
   }
 };
-
 
 exports.getAll = async (req, res) => {
   try {
@@ -41,7 +40,7 @@ exports.updatePosition = async (req, res) => {
     );
     res.status(200).json('updated');
   } catch (err) {
-    console.error('Error updating positions:', err);
+    console.error('Error updating positions:', err); // Log error details
     res.status(500).json({ message: 'Failed to update positions', error: err.message });
   }
 };

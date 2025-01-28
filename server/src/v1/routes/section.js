@@ -29,7 +29,7 @@ router.put(
   }),
   param('sectionId').custom((value) => {
     if (!validation.isObjectId(value)) {
-      console.error(`Invalid sectionId: ${value}`);
+      console.error(`Invalid sectionId: ${value}`); // Log invalid IDs
       return Promise.reject('Invalid section ID');
     }
     return Promise.resolve();
@@ -50,7 +50,7 @@ router.delete(
   }),
   param('sectionId').custom((value) => {
     if (!validation.isObjectId(value)) {
-      console.error(`Invalid sectionId: ${value}`);
+      console.error(`Invalid sectionId: ${value}`); // Log invalid IDs
       return Promise.reject('Invalid section ID');
     }
     return Promise.resolve();

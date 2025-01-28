@@ -26,9 +26,6 @@ const Kanban = props => {
     const sourceCol = data[sourceColIndex]
     const destinationCol = data[destinationColIndex]
 
-    const sourceSectionId = sourceCol.id
-    const destinationSectionId = destinationCol.id
-
     const sourceTasks = [...sourceCol.tasks]
     const destinationTasks = [...destinationCol.tasks]
 
@@ -38,19 +35,19 @@ const Kanban = props => {
       data[sourceColIndex].tasks = sourceTasks
       data[destinationColIndex].tasks = destinationTasks
     } else {
-      const [removed] = destinationTasks.splice(source.index, 1)
-      destinationTasks.splice(destination.index, 0, removed)
-      data[destinationColIndex].tasks = destinationTasks
+      const [removed] = sourceTasks.splice(source.index, 1)
+      sourceTasks.splice(destination.index, 0, removed)
+      data[sourceColIndex].tasks = sourceTasks
     }
 
     try {
       await taskApi.updatePosition(boardId, {
         resourceList: sourceTasks,
         destinationList: destinationTasks,
-        resourceSectionId: sourceSectionId,
-        destinationSectionId: destinationSectionId
+        resourceSectionId: sourceCol.id,
+        destinationSectionId: destinationCol.id
       })
-      setData(data)
+      setData([...data])
     } catch (err) {
       alert(err)
     }
@@ -93,16 +90,33 @@ const Kanban = props => {
 
   const createTask = async (sectionId) => {
     try {
-      const task = await taskApi.create(boardId, { sectionId })
-      const newData = [...data]
-      const index = newData.findIndex(e => e.id === sectionId)
-      newData[index].tasks.unshift(task)
-      setData(newData)
+      const taskData = { 
+        sectionId, 
+        title: 'New Task Title', 
+        content: 'New Task Content' 
+      };
+  
+      console.log('Sending task data:', taskData); // Debug the payload
+  
+      const task = await taskApi.create(boardId, {
+        sectionId,
+        title: 'New Task Title',
+        content: 'New Task Content',
+      });
+  
+      const newData = [...data];
+      const index = newData.findIndex(e => e.id === sectionId);
+      if (index !== -1) {
+        newData[index].tasks.unshift(task); // Add the new task to the section
+        setData(newData); // Update the UI
+      }
     } catch (err) {
-      alert(err)
+      console.error('Error creating task:', err.response?.data || err.message);
+      alert(err.response?.data?.message || 'Failed to create task');
     }
-  }
+  };
 
+  
   const onUpdateTask = (task) => {
     const newData = [...data]
     const sectionIndex = newData.findIndex(e => e.id === task.section.id)

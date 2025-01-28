@@ -5,7 +5,7 @@ const sectionApi = {
     try {
       return await axiosClient.post(`boards/${boardId}/sections`);
     } catch (err) {
-      console.error('Error creating section:', err.response || err.message);
+      console.error('Error creating section:', err.response || err.message); // Log error details
       throw err;
     }
   },
@@ -13,7 +13,7 @@ const sectionApi = {
     try {
       return await axiosClient.put(`boards/${boardId}/sections/${sectionId}`, params);
     } catch (err) {
-      console.error('Error updating section:', err.response || err.message);
+      console.error('Error updating section:', err.response || err.message); // Log error details
       throw err;
     }
   },
@@ -21,7 +21,7 @@ const sectionApi = {
     try {
       return await axiosClient.delete(`boards/${boardId}/sections/${sectionId}`);
     } catch (err) {
-      console.error('Error deleting section:', err.response || err.message);
+      console.error('Error deleting section:', err.response || err.message); // Log error details
       throw err;
     }
   },

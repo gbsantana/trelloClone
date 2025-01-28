@@ -19,13 +19,14 @@ axiosClient.interceptors.request.use(async config => {
   }
 })
 
-axiosClient.interceptors.response.use(
-  (response) => response?.data ?? response,
-  (err) => {
-    console.error('Axios Error:', err); // Log full error details
-    if (!err.response) throw new Error('Network error or server not reachable');
-    throw err.response; // Throw the response object for better error handling
+axiosClient.interceptors.response.use(response => {
+  if (response && response.data) return response.data
+  return response
+}, err => {
+  if (!err.response) {
+    return alert(err)
   }
-);
+  throw err.response
+})
 
 export default axiosClient
